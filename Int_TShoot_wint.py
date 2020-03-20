@@ -1,11 +1,5 @@
-parser.add_argument("-int", "--interface", help="Enter the interface ID")
-args = parser.parse_args()
-device_ip = args.router_ip
-target = args.interface
-
-
- Uses the target network devices IP address and the last four characters of an endpoints MAC-Address
-# Used when the switches IP and the last for characters of users PC are known.
+# Uses the target network devices interface and the last four characters of an endpoints MAC-Address
+# Used when the switches IP and the interface of users PC are known.
 
 import argparse
 from netmiko import Netmiko
@@ -18,12 +12,12 @@ import netmiko
 # Add arguments as variables when running script from a console.
 parser = argparse.ArgumentParser()
 parser.add_argument("-ip", "--router_ip", help="Enter the target devices IP address. I.E: /Downloads>tshoot_w-mac.exe -ip x.x.x.x -mac aaaa")
-parser.add_argument("-int", "--interface", help="Enter the interface ID")
+parser.add_argument("-int", "--interface", help="Enter the interface ID. I.E gig1/0/1")
 args = parser.parse_args()
 
 # Create objects from arguments collected when running script.
 device_ip = args.router_ip
-target = args.interface
+inter = args.interface
 
 # Creates get_input as object to prompt for username.
 def get_input(prompt=''):
@@ -53,22 +47,22 @@ my_device = {
 try:
     net_connect = Netmiko(**my_device)                           # Connect to device
     hostname = net_connect.base_prompt
-    mac_tbl = net_connect.send_command('sh mac address-table | i ' + macaddr)
+    mac_tbl = net_connect.send_command('sh mac address-table | i ' + inter)
     sh_mac = 'sh_mac.txt'
 
-    # Checks that mac-address can be found in the targets mac-table.
-    # If mac_tbl returns with a len other than 0, the script will move to the next check.
-    print(' * Verifying (' + macaddr + ') is in (' + hostname +') mac table.')
+    # Checks that the interface has a mac addr and it can be found in the targets mac-table.
+    # If inter returns with a len other than 0, the script will move to the next check.
+    print(' * Verifying (' + inter + ') is in (' + hostname +') mac table.')
     time.sleep(2)
     mac_tbl
     if len(mac_tbl) == 0:
-        print('- Warning:(' + macaddr + '), was not found in (' + hostname + '), mac-address table.')
+        print('- Warning:(' + inter + '), was not found in (' + hostname + '), mac-address table.')
         time.sleep(2)
-        print('  * Please try again with a new target IP and/or MAC address *')
+        print('  * Please try again with a new target IP and/or Interface *')
         time.sleep(2)
         print('   - Your target device was: ' + hostname + ' at ' +device_ip)
         time.sleep(2)
-        print('   - Your target MAC-Address was: ' +macaddr)
+        print('   - Your target Interface was: ' +intr)
         time.sleep(2)
         print(' Closing connection to: ' + hostname)
         time.sleep(2)
@@ -79,7 +73,7 @@ try:
     else:
         with open(sh_mac, 'a') as f:
             print((mac_tbl), file=f)
-        print('   - (' + macaddr + ') was found in (' + hostname + '), mac-address table.')
+        print('   - (' + inter + ') was found in (' + hostname + '), mac-address table.')
 
         parse = CiscoConfParse('.\\sh_mac.txt')
         obj = parse.find_objects(r'[GT]\S\S\S\S\S\S\S?')[0]
