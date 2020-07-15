@@ -76,8 +76,8 @@ try:
         print('   - (' + macaddr + ') was found in (' + hostname + '), mac-address table.')
 
         parse = CiscoConfParse('.\\sh_mac.txt')
-        obj = parse.find_objects(r'[GT]\S\S\S\S\S\S\S?')[0]
-        mac_int = obj.re_match_typed(r'([GT]\S\S\S\S\S\S\S?)')
+        obj = parse.find_objects(r'[GT]\S\S\S\S\S\S\S?|Po\d\d?\d?')[0]
+        mac_int = obj.re_match_typed(r'([GT]\S\S\S\S\S\S\S?|Po\d\d?\d?)')
         sh_run = 'sh_trunk.txt'
         sh_run_int = net_connect.send_command("show run int " + mac_int)
 
@@ -157,7 +157,7 @@ try:
         # Will run if "show run" returns with "switchport mode trunk."
         else:
             time.sleep(3)
-            print(' ! Warning: (' + macaddr + ') was learned from a trunk port and is not directly connected to your target, (' + hostname + ') at (' + device_ip + ')')
+            print(' ! Warning: (' + macaddr + ') was learned from a port and is not directly connected to your target, (' + hostname + ') at (' + device_ip + ')')
             time.sleep(2)
             print('   - Closing connection with ' + hostname)
             time.sleep(2)
